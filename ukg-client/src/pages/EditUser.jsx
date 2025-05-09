@@ -13,11 +13,12 @@ const FormWrapper = styled.div`
 `;
 
 const Input = styled.input`
-  display: block;
+  padding: 8px;
+  border: 1px solid ${({ isRed }) => (isRed ? 'red' : '#ccc')};
+  background-color: ${({ isGreen }) => (isGreen ? '#C8D6BF' : 'white')};
+  border-radius: 4px;
+  margin-bottom: 15px; 
   width: 100%;
-  padding: 12px;
-  margin: 10px 0 20px;
-  font-size: 16px;
 `;
 
 const Button = styled.button`
@@ -31,7 +32,7 @@ const Button = styled.button`
 
 const ErrorMsg = styled.p`
   color: red;
-`;
+`; 
 
 const EditUser = () => {
     const { state: user } = useLocation();  
@@ -72,13 +73,13 @@ const EditUser = () => {
         {error && <ErrorMsg>{error}</ErrorMsg>}
         <form onSubmit={handleSubmit}>
           <label>Email</label>
-          <Input type="email" name="email" value={formData.email} onChange={handleChange} required />
+          <Input type="email" name="email" isGreen value={formData.email} onChange={handleChange} required />
   
           <label>Username</label>
-          <Input type="text" name="userName" disabled  value={formData.userName} onChange={handleChange} required />
+          <Input type="text" name="userName" isRed disabled  value={formData.userName} onChange={handleChange} required />
   
           <label>Phone Number</label>
-          <Input type="text" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} required />
+          <Input type="text" name="phoneNumber" isGreen value={formData.phoneNumber} onChange={handleChange} required />
   
           <Button type="submit" disabled={isUpdating}>
             {isUpdating ? 'Updating...' : 'Update User'}

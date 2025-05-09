@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR\\IdentityServer\\IdentityServer.csproj": {}
+    "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\\IdentityServer\\IdentityServer.csproj": {}
   },
   "projects": {
-    "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR\\IdentityServer\\IdentityServer.csproj": {
+    "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\\IdentityServer\\IdentityServer.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR\\IdentityServer\\IdentityServer.csproj",
+        "projectUniqueName": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\\IdentityServer\\IdentityServer.csproj",
         "projectName": "IdentityServer",
-        "projectPath": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR\\IdentityServer\\IdentityServer.csproj",
+        "projectPath": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\\IdentityServer\\IdentityServer.csproj",
         "packagesPath": "C:\\Users\\smkwo\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR\\IdentityServer\\obj\\",
+        "outputPath": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\\IdentityServer\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

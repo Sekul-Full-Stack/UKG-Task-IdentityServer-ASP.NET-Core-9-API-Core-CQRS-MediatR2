@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PeopleManagementAPI.Tests.Unit")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+064d5beb72dfaff668035cb62110d379e31393a7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8b9b1d0409479fd1d6e2162190653287cd87af00")]
 [assembly: System.Reflection.AssemblyProductAttribute("PeopleManagementAPI.Tests.Unit")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PeopleManagementAPI.Tests.Unit")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
