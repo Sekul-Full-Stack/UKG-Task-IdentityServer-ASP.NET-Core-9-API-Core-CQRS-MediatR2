@@ -52,6 +52,8 @@ A secure and extensible **ASP.NET Core 9 API Identity Server** and **People Mana
 - Uses a custom `UserHttpClient` to communicate with Identity Server
 
 ---
+![Alt Text](images/1.JPG)
+![Alt Text](images/1.jpg)
 ![App Screenshot](images/1.jpg)
 ![App Screenshot](images/2.jpg)
 ![App Screenshot](images/3.jpg)
