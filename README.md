@@ -83,9 +83,7 @@ Run the following SQL script **before** starting the backend:
 BEGIN
     CREATE DATABASE IdentityServerDB;
 END
--- Remove the GO here to keep it in the same connection
 
--- Dynamically change DB context
 USE IdentityServerDB;
 
 BEGIN TRY
@@ -144,7 +142,6 @@ END TRY
 BEGIN CATCH
     ROLLBACK TRANSACTION;
 
-    -- Optional: Throw the error for debugging/logging
     DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
     RAISERROR(@ErrorMessage, 16, 1);
 END CATCH;
