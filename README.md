@@ -79,14 +79,14 @@ A secure and extensible **ASP.NET Core 9 API Identity Server** and **People Mana
 Run the following SQL script **before** starting the backend:
 
 ```sql
-IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'IdentityServerDB')
+ IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'IdentityServerDB')
 BEGIN
     CREATE DATABASE IdentityServerDB;
 END
-GO
+-- Remove the GO here to keep it in the same connection
 
+-- Dynamically change DB context
 USE IdentityServerDB;
-GO
 
 BEGIN TRY
     BEGIN TRANSACTION;
@@ -133,7 +133,22 @@ BEGIN TRY
         '+1234567890'
     );
 
-    COMMIT TRAN
+    INSERT INTO Roles (Name, Description)
+    VALUES 
+      ('EMPLOYEE', 'Regular employee with limited access'),
+      ('MANAGER', 'Manager with extended permissions'),
+      ('HR ADMIN', 'Human Resources administrator with full access');
+
+    COMMIT TRANSACTION;
+END TRY
+BEGIN CATCH
+    ROLLBACK TRANSACTION;
+
+    -- Optional: Throw the error for debugging/logging
+    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+    RAISERROR(@ErrorMessage, 16, 1);
+END CATCH;
+
 
 
 ENDPOINTS:
