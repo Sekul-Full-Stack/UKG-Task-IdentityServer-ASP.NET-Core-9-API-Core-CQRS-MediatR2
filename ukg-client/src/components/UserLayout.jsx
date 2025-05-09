@@ -73,6 +73,8 @@ const RoundedButton = styled.button`
   }
 `;
 
+ 
+
 const UserLayout = () => {
   const navigate = useNavigate(); 
   let user = null;
@@ -96,7 +98,7 @@ const UserLayout = () => {
  
   const ADMIN = user?.roles.some(u => u === ROLES.HR_ADMIN);
   const MANAGER = user?.roles.some(u => u === ROLES.MANAGER);
- 
+    
   return (
     <LayoutContainer> 
         <Navbar style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -105,7 +107,7 @@ const UserLayout = () => {
                 {user.roles.length > 0 &&  
                 <> 
                     {ADMIN && 
-                        <RoundedButton width="70px" onClick={() => window.location.href = '/signup'}>SignUp</RoundedButton>
+                        <RoundedButton width="80px" onClick={() => window.location.href = '/signup'}>SignUp</RoundedButton>
                     }
                     {(ADMIN || MANAGER) &&
                         <RoundedButton width="70px" onClick={() => navigate('/users')}>Users</RoundedButton>
@@ -114,7 +116,7 @@ const UserLayout = () => {
                         <>  
                           <RoundedButton width="70px" onClick={() => navigate('/roles')}>Roles</RoundedButton>    
                         </>
-                    }
+                    } 
                 </>
                 }        
                 <RoundedButton as="button" onClick={() => navigate('/profile')}>Profile</RoundedButton>

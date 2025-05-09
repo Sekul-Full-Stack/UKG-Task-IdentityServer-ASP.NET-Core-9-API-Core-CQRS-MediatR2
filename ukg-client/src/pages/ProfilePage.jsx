@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';  
 import styled from 'styled-components'; 
 
@@ -68,18 +68,143 @@ const Button = styled.button`
     opacity: 0.9;
   }
 `; 
+const ConfirmButton = styled.button`
+  margin-top: 20px;
+  padding: 10px;
+  background-color: green;
+  color: white;
+  border: none;
+  width: 100%;
+  border-radius: 4px;
+  cursor: pointer;
 
+  &:hover {
+    background-color: darkgreen;
+  }
+`;
+
+const ModalBackdrop = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
  
- 
+const Modal = styled.div`
+  background: white;
+  padding: 30px;
+  border-radius: 10px;
+  min-width: 300px;
+`;
+
+const RoundedResetButton = styled.button`
+  padding: 5px 8px;
+  background-color: transparent;
+  color: black;
+  border: 2px solid black;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 650;
+  margin-left: 9px;
+  margin-bottom: 15px;
+  width: ${({ width }) => width || 'auto'};  
+  transition: background-color 0.3s ease, color 0.3s ease;
+
+  &:hover {
+    background-color: #d4edda;  
+    border-color: black; 
+  }
+`;
+
 const ProfilePage = () => {  
   const user = useSelector((state) => state.auth.user);
-  const navigate = useNavigate();    
+  const EMPLOYEE = user?.roles.some(u => u === "EMPLOYEE");
+  const [isModalResetPassOpen, setIsModalResetPassOpen] = useState(false); 
+  const navigate = useNavigate();   
+  const [newPassword, setNewPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const handleResetPassword = async () => {  
+        if (!newPassword || newPassword.length < 8) {
+          setPasswordError('Password must be at least 8 characters');
+          return;
+        } 
+        
+        try { 
+          console.log('ID', user.id);
+          const token = localStorage.getItem('token');  
+          const response = await fetch('http://localhost:5151/api/people/me/reset-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              Id: user.id,
+              NewPassword: newPassword
+            })
+          });
+          
+          if (response) { 
+            setIsModalResetPassOpen(false); 
+            setNewPassword('');
+            setPasswordError('');
+          } else {
+            const errorData = await response.json();
+            setPasswordError(errorData.message || 'Failed to reset password');
+          }
+        } catch (err) {
+          console.error('Error:', err); 
+          setPasswordError('An unexpected error occurred.' + err);
+        }
+    }
   return (
     <PageContainer>
+      {isModalResetPassOpen && user && (
+        <ModalBackdrop onClick={() => setIsModalResetPassOpen(false)}>
+          <Modal onClick={(e) => e.stopPropagation()}>
+            <h3>Reset Password for {user.UserName}</h3>
+            <input
+              type="password"
+              placeholder="Enter new password"
+              value={newPassword}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setPasswordError('');
+              }}
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginTop: '10px',
+                borderRadius: '4px',
+                border: '1px solid #ccc'
+              }}
+            />
+            {passwordError && (
+              <p style={{ color: 'red', marginTop: '5px' }}>{passwordError}</p>
+            )}
+            <ConfirmButton onClick={handleResetPassword}>Confirm Reset</ConfirmButton>
+          </Modal>
+        </ModalBackdrop>
+      )}
       {user?.id > 0 ?  
         < > 
           <ProfileHeader>{ user.roles ? user?.roles.join(" & ") : "Not Employee"}</ProfileHeader>
-          <UserNameHeader>{ user.userName}</UserNameHeader>  
+          <UserNameHeader>{ user.userName}</UserNameHeader> 
+          {EMPLOYEE && 
+            <>  
+              <RoundedResetButton width="111px" onClick={(e) => {
+                e.stopPropagation();   
+                setIsModalResetPassOpen(true);
+              }}>Reset Pass</RoundedResetButton>    
+            </>
+          } 
           <UserCard>  
             <span><strong>ID: </strong> { user.id}</span>
             <span><strong>Email: </strong> { user.email}</span>

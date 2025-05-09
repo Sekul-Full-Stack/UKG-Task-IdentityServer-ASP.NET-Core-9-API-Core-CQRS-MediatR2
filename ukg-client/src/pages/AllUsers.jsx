@@ -195,8 +195,7 @@ const AllUsers = () => {
                 'Authorization': `Bearer ${token}` 
                 },
           });
-          const data = await response.json();
-          console.log('GRRRRRRRRRRRRRRR', data);
+          const data = await response.json(); 
           setRoles(data.data);
         } catch (err) {
           console.error('Failed to fetch roles', err);
@@ -291,7 +290,7 @@ const AllUsers = () => {
           <Title>All Users</Title>
           {users.data.length > 0 ? (
             <UserGrid>
-              {users?.data.map((user) => (
+              {users?.data.slice().reverse().map((user) => (
                 <UserCard key={user.Id}>
                     <span><strong>ID:</strong> {user.Id}</span>
                     <span><strong>Email:</strong> {user.Email}</span>
@@ -339,6 +338,33 @@ const AllUsers = () => {
                       }}>
                           Assign Role
                       </AssignRoleButton>
+                      {isModalResetPassOpen && selectedUser && (
+                        <ModalBackdrop onClick={() => setIsModalResetPassOpen(false)}>
+                          <Modal onClick={(e) => e.stopPropagation()}>
+                            <h3>Reset Password for {selectedUser.UserName}</h3>
+                            <input
+                              type="password"
+                              placeholder="Enter new password"
+                              value={newPassword}
+                              onChange={(e) => {
+                                setNewPassword(e.target.value);
+                                setPasswordError('');
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '10px',
+                                marginTop: '10px',
+                                borderRadius: '4px',
+                                border: '1px solid #ccc'
+                              }}
+                            />
+                            {passwordError && (
+                              <p style={{ color: 'red', marginTop: '5px' }}>{passwordError}</p>
+                            )}
+                            <ConfirmButton onClick={handleResetPassword}>Confirm Reset</ConfirmButton>
+                          </Modal>
+                        </ModalBackdrop>
+                      )}
 
                       <RestPasswordButton onClick={(e) => {
                         e.stopPropagation();  

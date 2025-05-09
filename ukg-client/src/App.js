@@ -20,7 +20,7 @@ function App() {
       <Routes> 
         <Route path="/" element={<SignIn />} />
         <Route path="/SignIn" element={<SignIn />} />
-        
+
         <Route element={<UserLayout />}> 
           <Route
               path="/signup" element={
@@ -60,6 +60,18 @@ function App() {
                 }
             />
             <Route path="/roles" element={
+                  <ProtectedRoute roles={[ROLES.HR_ADMIN]}>
+                    <Roles />
+                  </ProtectedRoute>
+                }
+              />
+             <Route path="/me/reset-password" element={
+                  <ProtectedRoute roles={[ROLES.EMPLOYEE]}>
+                    <Roles />
+                  </ProtectedRoute>
+                }
+            />
+            <Route path="/admin/reset-password" element={
                   <ProtectedRoute roles={[ROLES.HR_ADMIN]}>
                     <Roles />
                   </ProtectedRoute>
