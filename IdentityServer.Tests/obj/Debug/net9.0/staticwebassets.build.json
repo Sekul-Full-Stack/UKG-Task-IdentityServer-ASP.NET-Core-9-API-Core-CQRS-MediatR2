@@ -1,0 +1,24 @@
+{
+  "Version": 1,
+  "Hash": "CT0anevpdYG9dFjceMM0AdYxfkYw/edQLAP6ujH4GdM=",
+  "Source": "IdentityServer.Tests",
+  "BasePath": "_content/IdentityServer.Tests",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR\\IdentityServer\\IdentityServer.csproj",
+      "Version": 2,
+      "Source": "IdentityServer",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework;RuntimeIdentifier;SelfContained"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

@@ -1,0 +1,6 @@
+@PeopleManagementAPI.Tests.Unit_HostAddress = http://localhost:5213
+
+GET {{PeopleManagementAPI.Tests.Unit_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

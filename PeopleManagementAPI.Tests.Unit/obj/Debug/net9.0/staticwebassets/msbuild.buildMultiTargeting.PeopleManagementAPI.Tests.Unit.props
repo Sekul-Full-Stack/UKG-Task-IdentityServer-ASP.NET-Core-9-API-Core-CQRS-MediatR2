@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\PeopleManagementAPI.Tests.Unit.props" />
+</Project>
