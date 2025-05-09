@@ -53,14 +53,13 @@ A secure and extensible **ASP.NET Core 9 API Identity Server** and **People Mana
 
 
 ![Alt Text](images/1.JPG)
-![Alt Text](images/1.jpg)
-![App Screenshot](images/1.JPG)
-![App Screenshot](images/2.JPG)
-![App Screenshot](images/3.JPG)
-![App Screenshot](images/4.JPG)
-![App Screenshot](images/5.JPG)
-![App Screenshot](images/6.JPG)
-![App Screenshot](images/7.JPG)
+![Alt Text](images/2.JPG)
+![Alt Text](images/3.JPG)
+![Alt Text](images/4.JPG)
+![Alt Text](images/5.JPG)
+![Alt Text](images/6.JPG)
+![Alt Text](images/7.JPG)
+ 
 
 
 ## Getting Started
