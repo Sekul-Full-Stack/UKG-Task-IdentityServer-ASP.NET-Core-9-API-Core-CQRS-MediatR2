@@ -51,16 +51,16 @@ A secure and extensible **ASP.NET Core 9 API Identity Server** and **People Mana
 - **CORS configured for** `http://localhost:3000`
 - Uses a custom `UserHttpClient` to communicate with Identity Server
 
----
+
 ![Alt Text](images/1.JPG)
 ![Alt Text](images/1.jpg)
-![App Screenshot](images/1.jpg)
-![App Screenshot](images/2.jpg)
-![App Screenshot](images/3.jpg)
-![App Screenshot](images/4.jpg)
-![App Screenshot](images/5.jpg)
-![App Screenshot](images/6.jpg)
-![App Screenshot](images/7.jpg)
+![App Screenshot](images/1.JPG)
+![App Screenshot](images/2.JPG)
+![App Screenshot](images/3.JPG)
+![App Screenshot](images/4.JPG)
+![App Screenshot](images/5.JPG)
+![App Screenshot](images/6.JPG)
+![App Screenshot](images/7.JPG)
 
 
 ## Getting Started
