@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "Hash": "zZd7DBQqFkveFzWsFOPGmplhfnDBlM4ykLbx6fqX3TE=",
+  "Hash": "D5aWOJS1bZeYPLiRg3aO9+ygkcdG8Mb6vsNjZO5fHFI=",
   "Source": "PeopleManagementAPI.Tests.Unit",
   "BasePath": "_content/PeopleManagementAPI.Tests.Unit",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [
     {
-      "Identity": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR\\PeopleManagementAPI\\PeopleManagementAPI.csproj",
+      "Identity": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\\PeopleManagementAPI\\PeopleManagementAPI.csproj",
       "Version": 2,
       "Source": "PeopleManagementAPI",
       "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",

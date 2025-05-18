@@ -1,10 +1,10 @@
-﻿namespace IdentityServer.Tests.IntegrationTests.Fakes
-{
-    using global::IdentityServer.Application.Interfaces;
-    using global::IdentityServer.Application.Results;
-    using global::IdentityServer.Domain.Models;
-    using System.Collections.Concurrent;
+﻿using IdentityServer.Application.Interfaces;
+using IdentityServer.Application.Results;
+using IdentityServer.Domain.Models;
+using System.Collections.Concurrent;
 
+namespace IdentityServer.Tests.IntegrationTests.Fakes
+{   
     public class FakeRoleManager : IRoleManager
     {
         private readonly ConcurrentDictionary<int, Role> _roles = new();
@@ -30,12 +30,16 @@
         {
             var roles = _roles.Values.ToList();
             return Task.FromResult(IdentityResult<IEnumerable<Role>>.Success(roles));
-        }
+        } 
 
         public Task<IdentityResult<bool>> CreateRoleAsync(string roleName, string description)
-        {
+        { 
+            if (_roles.Values.Any(r => r.Name.Equals(roleName, StringComparison.OrdinalIgnoreCase)))  
+                return Task.FromResult(IdentityResult<bool>.Failure("Role already exists."));
+              
             var id = _nextRoleId++;
             _roles[id] = new Role { Id = id, Name = roleName, Description = description };
+
             return Task.FromResult(IdentityResult<bool>.Success(true));
         }
 
@@ -77,11 +81,9 @@
 
         public Task<IdentityResult<bool>> AddToRoleAsync(int userId, int roleId)
         {
-            if (!_roles.ContainsKey(roleId))
-            {
+            if (!_roles.ContainsKey(roleId)) 
                 return Task.FromResult(IdentityResult<bool>.Failure("Role does not exist"));
-            }
-
+              
             if (!_userRoles.ContainsKey(userId))
                 _userRoles[userId] = new List<int>();
 
@@ -96,5 +98,8 @@
                 _roles[roleId] = role;
             }
         }
+
+        public void ClearAll() =>
+            _roles.Clear();
     }
 }

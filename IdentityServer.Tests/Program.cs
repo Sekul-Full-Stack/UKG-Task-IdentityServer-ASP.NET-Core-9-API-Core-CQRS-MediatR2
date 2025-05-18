@@ -9,42 +9,50 @@ using IdentityServer.Application.Commands.SignIn;
 using IdentityServer.Application.Commands.UpdateUser;
 using IdentityServer.Application.Interfaces;
 using IdentityServer.Application.Queries.GetUserInfo;
+using IdentityServer.Controllers;
 using IdentityServer.Infrastructure.Identity;
 using MediatR;
- 
 
 var builder = WebApplication.CreateBuilder(args);
 
+// MediatR & Validation
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssemblyContaining<CreateUserCommand>();
-});  
+cfg.RegisterServicesFromAssemblyContaining<CreateUserCommand>();
+cfg.RegisterServicesFromAssemblyContaining<SignInCommandHandler>();
+});
 
 builder.Services.AddValidatorsFromAssemblyContaining<CreateUserCommandValidator>();
-builder.Services.AddFluentValidationAutoValidation();  
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddFluentValidationClientsideAdapters();
- 
+
 builder.Services.AddValidatorsFromAssemblyContaining<CreateRoleCommandValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<CreateUserCommandValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<DeleteRoleCommandValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<DeleteUserCommandValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<ResetUserPasswordCommandValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<SignInCommandValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateRoleCommandValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<UpdateUserCommandValidator>();
-builder.Services.AddValidatorsFromAssemblyContaining<GetUserInfoValidator>();  
+builder.Services.AddValidatorsFromAssemblyContaining<GetUserInfoValidator>();
 
-builder.Services.AddScoped<IUserManager, UserManager>();
-builder.Services.AddScoped<IRoleManager, RoleManager>(); 
-  
-builder.Services.AddControllers();
+//   Only register real services if NOT running in test mode
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddScoped<IUserManager, UserManager>();
+    builder.Services.AddScoped<IRoleManager, RoleManager>();
+    builder.Services.AddScoped<ITokenService, TokenService>();
+}
+
+builder.Services.AddControllers()
+    .AddApplicationPart(typeof(UsersController).Assembly);
+
 var app = builder.Build();
- 
+
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers(); 
- 
+app.MapControllers();
+
 app.Run();
 
 public partial class Program { }
-

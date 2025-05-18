@@ -1,66 +1,53 @@
-﻿using IdentityServer.Application.Interfaces;
-using IdentityServer.Application.Results;
-using IdentityServer.Domain.Models;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿namespace IdentityServer.Tests.IntegrationTests.Fakes
+{
+    using System.IdentityModel.Tokens.Jwt;
+    using System.Security.Claims;
+    using System.Text;
 
-namespace IdentityServer.Tests.IntegrationTests.Fakes
-{  
+    using Microsoft.IdentityModel.Tokens;
+
+    using IdentityServer.Application.Interfaces;
+    using IdentityServer.Application.Results;
+    using IdentityServer.Domain.Models;
+
     public class FakeTokenService : ITokenService
-    { 
-        private readonly string _issuer = "ukg";
-        private readonly string _audience = "my-app-users";
+    {
+        public bool ForceFailure { get; set; } = false;
+        public string? FailureMessage { get; set; } = "Token generation failed";
+
         private readonly string _secretKey = "super-secret-key-1234567890-abcdef";
 
         public IdentityResult<string> GenerateToken(string userId, User user, IEnumerable<string> roles)
         {
-            try
+            if (ForceFailure)
             {
-                if (string.IsNullOrWhiteSpace(userId) || user == null)
-                    return IdentityResult<string>.Failure("Invalid user data");
-
-                var claims = new List<Claim>
-            {
-                new Claim("userId", userId),
-                new Claim("userName", user.UserName ?? ""),
-                new Claim("email", user.Email ?? "")
-            };
-
-                if (roles != null)
-                {
-                    foreach (var role in roles)
-                    {
-                        claims.Add(new Claim("roles", role));
-                    }
-                }
-
-                var keyBytes = Encoding.UTF8.GetBytes(_secretKey);
-                if (keyBytes.Length < 32)  
-                    return IdentityResult<string>.Failure("Secret key is too short for secure signing");
-
-                var key = new SymmetricSecurityKey(keyBytes);
-                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-                var token = new JwtSecurityToken(
-                    issuer: _issuer,
-                    audience: _audience,
-                    claims: claims,
-                    expires: DateTime.UtcNow.AddHours(2),
-                    signingCredentials: creds);
-
-                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-                if (string.IsNullOrWhiteSpace(tokenString))
-                    return IdentityResult<string>.Failure("Token generation failed");
-
-                return IdentityResult<string>.Success(tokenString);
+                return IdentityResult<string>.Failure(FailureMessage);
             }
-            catch (Exception ex)
+             
+            var claims = new List<Claim>
+        {
+            new Claim("userId", userId),
+            new Claim("userName", user.UserName ?? ""),
+            new Claim("email", user.Email ?? "")
+        };
+
+            foreach (var role in roles)
             {
-                return IdentityResult<string>.Failure($"Token generation error: {ex.Message}");
+                claims.Add(new Claim("roles", role));
             }
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_secretKey));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: "ukg",
+                audience: "my-app-users",
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(1),
+                signingCredentials: creds);
+
+            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+            return IdentityResult<string>.Success(tokenString);
         }
-    }
+    }  
 }

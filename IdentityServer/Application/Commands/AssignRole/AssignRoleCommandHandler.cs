@@ -17,8 +17,10 @@
         public async Task<IdentityResult<bool>> Handle(AssignRoleCommand request, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested(); 
+            
             var userResult = await _userManager.FindByIdAsync(request.UserId);
             if (!userResult.IsSuccess) return IdentityResult<bool>.Failure("User not found.");
+            
             return await _roleManager.AddToRoleAsync(userResult.Data.Id, request.RoleId); ;
         }
     }

@@ -12,7 +12,6 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
             return await _roleManager.CreateRoleAsync(request.Name, request.Description);
-        } 
-              
+        }     
     } 
 }

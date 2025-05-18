@@ -16,7 +16,7 @@
     using IdentityServer.Application.Queries.GetUserInfo;
     using IdentityServer.Application.Queries.GetAllUsers;
     using IdentityServer.Application.Queries.GetAllRoles;
-
+     
     public class UsersController : BaseApiController
     {
         private readonly IMediator _mediator; 
@@ -42,7 +42,7 @@
             AsActionResult(await _mediator.Send(new DeleteUserCommand { UserId = userId })); 
 
         [HttpGet("me/info/{userId}")]
-        public async Task<IActionResult> GetInfo(int userId) =>  //without [FromBody] GetUserInfoQuery is waiting body but i didn't provide it and throw 4115 mime type problem
+        public async Task<IActionResult> GetInfo(int userId) =>     
             AsActionResult(await _mediator.Send(new GetUserInfoQuery { UserId = userId }));
 
         [HttpGet("all-users")]

@@ -24,7 +24,6 @@
                     DateCreated: r.DateCreated
                 )));
         }
-    }
-
+    } 
 }
 

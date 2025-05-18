@@ -1,9 +1,5 @@
-﻿namespace IdentityServer.Tests.IntegrationTests.Fakes
-{
-    using global::IdentityServer.Application.Interfaces;
-    using global::IdentityServer.Domain.Models; 
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
+﻿using IdentityServer.Application.Interfaces;
+using IdentityServer.Domain.Models; 
 
     namespace IdentityServer.Tests.IntegrationTests.Fakes
     {
@@ -39,5 +35,3 @@
                 Task.FromResult(true);
         }
     }
-
-}

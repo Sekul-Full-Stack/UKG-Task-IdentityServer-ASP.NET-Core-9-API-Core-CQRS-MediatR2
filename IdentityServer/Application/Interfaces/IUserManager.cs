@@ -9,7 +9,7 @@
         Task<IdentityResult<User>> UpdateAsync(User user);
         Task<IdentityResult<bool>> DeleteAsync(int userId); 
         Task<IdentityResult<User>> FindByIdAsync(int userId); 
-        Task<IdentityResult<bool>> FindByEmailAsync(string email); 
+        Task<IdentityResult<User?>> FindByEmailAsync(string email); 
         Task<IdentityResult<bool>> ResetPasswordAsync(int Id, string newPassword);
         Task<IdentityResult<User>> ValidateUserAsync(string username, string password); 
     }

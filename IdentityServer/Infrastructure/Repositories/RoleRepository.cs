@@ -10,13 +10,18 @@
     using IdentityServer.Domain.Models;
     using IdentityServer.Domain.Exceptions;
 
-    using Dapper;
+    using Dapper; 
 
     public class RoleRepository : IRoleRepository
     {
         private readonly IDbConnection _dbConnection;
-        public RoleRepository(IConfiguration configuration) =>
+        private readonly ILogger<RoleRepository> _logger;
+
+        public RoleRepository(IConfiguration configuration, ILogger<RoleRepository> logger)
+        {
             _dbConnection = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
+            _logger = logger;
+        } 
 
         public async Task<bool> AddUserToRoleAsync(int userId, int roleId)
         {
@@ -24,27 +29,30 @@
             const string insertQuery = "INSERT INTO UserRoles (UserId, RoleId) VALUES (@UserId, @RoleId)";
             var parameters = new { UserId = userId, RoleId = roleId };
 
-            using var connection = _dbConnection;  
-            connection.Open();  
+            using var connection = _dbConnection;
+            connection.Open();
 
             using var transaction = connection.BeginTransaction();
 
             try
-            { 
+            {
+                // Delete previous roles
                 await connection.ExecuteAsync(deleteQuery, new { UserId = userId }, transaction);
-                 
+
+                // Insert the new role
                 var rowsInserted = await connection.ExecuteAsync(insertQuery, parameters, transaction);
 
-                transaction.Commit();  
+                transaction.Commit();
                 return rowsInserted > 0;
             }
             catch (Exception ex)
             {
-                transaction.Rollback();  
+                transaction.Rollback();
+                _logger.LogError(ex, "Error occurred while adding user ID {UserId} to role ID {RoleId}.", userId, roleId);
                 throw new RepositoryException("Error occurred while updating user role.", ex);
             }
         }
-         
+
         public async Task<bool> CreateUserRoleAsync(string roleName, string description)
         {
             const string sql = @"INSERT INTO Roles (Name, Description) VALUES (@Name, @Description);";
@@ -59,9 +67,11 @@
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error occurred while creating the role.");
+                _logger.LogError(ex, "Error occurred while creating role {RoleName}.", roleName);
+                throw new RepositoryException("Error occurred while creating the role.", ex);
             }
-        } 
+        }
+
         public async Task<bool> DeleteUserRoleAsync(int roleId)
         {
             const string sql = @"DELETE FROM Roles WHERE Id = @RoleId";
@@ -76,9 +86,11 @@
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error occurred while deleting role.");
+                _logger.LogError(ex, "Error occurred while deleting role ID {RoleId}.", roleId);
+                throw new RepositoryException("Error occurred while deleting role.", ex);
             }
-        } 
+        }
+
         public async Task<Role?> FindRoleByIdAsync(int roleId)
         {
             const string query = "SELECT * FROM Roles WHERE Id = @Id";
@@ -89,7 +101,8 @@
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error occurred while removing user from role.");
+                _logger.LogError(ex, "Error occurred while fetching role by ID {RoleId}.", roleId);
+                throw new RepositoryException("Error occurred while retrieving role.", ex);
             }
         }
 
@@ -103,13 +116,14 @@
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error occurred while removing user from role.");
+                _logger.LogError(ex, "Error occurred while fetching role for user ID {UserId}.", userId);
+                throw new RepositoryException("Error occurred while retrieving user role.", ex);
             }
         }
 
         public async Task<IEnumerable<string>> GetUserRolesAsync(int userId)
         {
-            string query = @"SELECT r.Name FROM Roles r LEFT JOIN UserRoles ur ON r.Id = ur.RoleId WHERE ur.UserId = @UserId";
+            const string query = @"SELECT r.Name FROM Roles r LEFT JOIN UserRoles ur ON r.Id = ur.RoleId WHERE ur.UserId = @UserId";
             var parameters = new { UserId = userId };
             try
             {
@@ -119,13 +133,14 @@
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error occurred while fetching roles.");
+                _logger.LogError(ex, "Error occurred while fetching roles for user ID {UserId}.", userId);
+                throw new RepositoryException("Error occurred while fetching roles.", ex);
             }
         }
 
         public async Task<IEnumerable<Role>> GetRolesAsync()
         {
-            string query = @"SELECT * FROM Roles"; 
+            const string query = @"SELECT * FROM Roles";
             try
             {
                 var roles = await _dbConnection.QueryAsync<Role>(query);
@@ -134,7 +149,8 @@
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error occurred while fetching roles.");
+                _logger.LogError(ex, "Error occurred while fetching roles.");
+                throw new RepositoryException("Error occurred while fetching roles.", ex);
             }
         }
 
@@ -155,17 +171,21 @@
                 parameters.Add("Description", description);
             }
             if (updates.Count == 0) throw new RepositoryException("No Name and Description provided for update.");
+
             var sql = $"UPDATE Roles SET {string.Join(", ", updates)} WHERE Id = @Id;";
+
             try
             {
                 var result = await _dbConnection.ExecuteAsync(sql, parameters);
-                if (result <= 0) throw new RepositoryException("Failed to update a role.");
+                if (result <= 0) throw new RepositoryException("Failed to update the role.");
                 return true;
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error occurred while creating the role.");
+                _logger.LogError(ex, "Error occurred while updating role ID {RoleId}.", id);
+                throw new RepositoryException("Error occurred while updating the role.", ex);
             }
         }
     }
+
 }

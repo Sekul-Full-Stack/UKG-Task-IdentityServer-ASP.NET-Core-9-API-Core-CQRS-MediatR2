@@ -1,6 +1,7 @@
 ﻿namespace IdentityServer.Application.Commands.SignIn
 {
-    using MediatR;  
+    using MediatR; 
+    
     using IdentityServer.Application.Interfaces;
     using IdentityServer.Application.Results;  
     public class SignInCommandHandler : IRequestHandler<SignInCommand, IdentityResult<SignInResponse>> 
@@ -21,40 +22,28 @@
 
         public async Task<IdentityResult<SignInResponse>> Handle(SignInCommand request, CancellationToken cancellationToken)
         {
-            try
-            {
-                cancellationToken.ThrowIfCancellationRequested();
+            cancellationToken.ThrowIfCancellationRequested();
 
-                var user = await _userManager.ValidateUserAsync(request.Email, request.Password);
-                if (!user.IsSuccess)
-                    return IdentityResult<SignInResponse>.Failure("Invalid credentials");
+            // Validate user credentials
+            var user = await _userManager.ValidateUserAsync(request.Email, request.Password);
+            if (!user.IsSuccess)
+                return IdentityResult<SignInResponse>.Failure("Invalid credentials");
 
-                var roles = await _roleManager.GetRolesAsync(user.Data.Id);
-                if (!roles.IsSuccess)
-                    return IdentityResult<SignInResponse>.Failure(roles.Error);
+            // Retrieve user roles
+            var roles = await _roleManager.GetRolesAsync(user.Data.Id);  
+            var roleList = roles.Data ?? Enumerable.Empty<string>();
 
-                var roleList = roles?.Data ?? Enumerable.Empty<string>();
+            // Generate token for user
+            var tokenResult = _tokenService.GenerateToken(user.Data.Id.ToString(), user.Data, roleList);
+            if (!tokenResult.IsSuccess)
+                return IdentityResult<SignInResponse>.Failure(tokenResult.Error ?? "Token generation failed");
 
-                try
-                {
-                    var token = _tokenService.GenerateToken(user.Data.Id.ToString(), user.Data, roleList);
-                    if (!token.IsSuccess)
-                        return IdentityResult<SignInResponse>.Failure(token.Error ?? "Token generation failed");
-
-                    return IdentityResult<SignInResponse>.Success(
-                        new SignInResponse(token.Data, new AuthenticatedUser(
-                            user.Data.Id, user.Data.UserName, user.Data.Email,
-                            user.Data.PhoneNumber, user.Data.DateCreated, roleList)));
-                }
-                catch (Exception ex)
-                {
-                    return IdentityResult<SignInResponse>.Failure("Token generation failed");
-                }
-            }
-            catch (Exception ex)
-            {
-                return IdentityResult<SignInResponse>.Failure("Unexpected error");
-            }
+            // Return successful response with token and user information
+            return IdentityResult<SignInResponse>.Success(
+                new SignInResponse(tokenResult.Data, new AuthenticatedUser(
+                    user.Data.Id, user.Data.UserName, user.Data.Email,
+                    user.Data.PhoneNumber, user.Data.DateCreated, roleList)));
         }
+
     }
 }

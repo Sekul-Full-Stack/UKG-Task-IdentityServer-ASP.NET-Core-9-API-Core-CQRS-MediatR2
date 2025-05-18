@@ -2,8 +2,6 @@
 
 namespace IdentityServer.Tests.IntegrationTests.TestHelpers
 {
-    namespace IdentityServer.Tests.TestHelpers
-    {
         public class FakePasswordHasher : IPasswordHasher
         {
             public string Hash(string password) => "hashed-" + password;
@@ -21,5 +19,3 @@ namespace IdentityServer.Tests.IntegrationTests.TestHelpers
             }
         }
     }
-
-}

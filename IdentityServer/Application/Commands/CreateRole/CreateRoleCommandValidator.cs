@@ -1,7 +1,6 @@
 ﻿namespace IdentityServer.Application.Commands.CreateRole
 {
-    using FluentValidation;
-
+    using FluentValidation; 
     public class CreateRoleCommandValidator : AbstractValidator<CreateRoleCommand>
     {
         public CreateRoleCommandValidator()

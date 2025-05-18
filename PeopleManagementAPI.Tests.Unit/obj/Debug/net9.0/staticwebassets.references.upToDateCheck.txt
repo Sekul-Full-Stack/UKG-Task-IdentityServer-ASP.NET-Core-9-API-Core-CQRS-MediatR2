@@ -192,3 +192,10 @@ C:\Users\smkwo\Desktop\COPY\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets
 C:\Users\smkwo\Desktop\COPY\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\smkwo\Desktop\COPY\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\smkwo\Desktop\GitHub\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\smkwo\Desktop\New folder\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\smkwo\Desktop\New folder\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\smkwo\Desktop\New folder\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\smkwo\Desktop\New folder\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\smkwo\Desktop\New folder\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\smkwo\Desktop\GitHub\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json
+C:\Users\smkwo\Desktop\GitHub\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\PeopleManagementAPI\obj\Debug\net9.0\staticwebassets.build.json

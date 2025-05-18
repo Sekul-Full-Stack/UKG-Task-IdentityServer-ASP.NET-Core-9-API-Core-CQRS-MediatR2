@@ -4,53 +4,55 @@
     using System.Threading.Tasks; 
 
     using Microsoft.Data.SqlClient;
+    using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.Logging;
 
     using Dapper;
 
     using IdentityServer.Application.Interfaces; 
     using IdentityServer.Domain.Models;
-    using IdentityServer.Domain.Exceptions; 
+    using IdentityServer.Domain.Exceptions;
 
-    public class UserRepository: IUserRepository
+    public class UserRepository : IUserRepository
     {
-        private readonly IDbConnection _dbConnection; 
-        public UserRepository(IConfiguration configuration) => 
-            _dbConnection = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
-         
-        public async Task<User> CreateUserAsync(User user, string hashedPassword)  
+        private readonly IDbConnection _dbConnection;
+        private readonly ILogger<UserRepository> _logger;
+
+        public UserRepository(IConfiguration configuration, ILogger<UserRepository> logger)
         {
-            var query = @"INSERT INTO Users (Email, UserName, PhoneNumber, PasswordHash) 
-                        OUTPUT INSERTED.Id, INSERTED.Email, INSERTED.UserName, INSERTED.PhoneNumber, INSERTED.DateCreated
-                        VALUES(@Email, @UserName, @PhoneNumber, @PasswordHash); ";
-             
-            var parameters = new User
-            {
-                Email = user.Email,
-                UserName = user.UserName,
-                PhoneNumber = user.PhoneNumber,
-                PasswordHash = hashedPassword
-            };
+            _dbConnection = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
+            _logger = logger;
+        } 
+         
+        public async Task<User> CreateUserAsync(User user, string password)
+        {
+            const string query = @"
+                INSERT INTO Users (Email, UserName, PhoneNumber, PasswordHash) 
+                OUTPUT INSERTED.Id, INSERTED.Email, INSERTED.UserName, INSERTED.PhoneNumber, INSERTED.DateCreated
+                VALUES (@Email, @UserName, @PhoneNumber, @PasswordHash);";
+
+            var parameters = new { user.Email, user.UserName, user.PhoneNumber, PasswordHash = password };
+
             try
-            { 
-                var recorder = await _dbConnection.QuerySingleAsync<User>(query, parameters);
-                if (recorder == null)
+            {
+                var insertedUser = await _dbConnection.QuerySingleOrDefaultAsync<User>(query, parameters);
+                if (insertedUser == null)
                     throw new RepositoryException("User creation failed.");
 
-                return new User
-                {
-                    Id = recorder.Id,
-                    Email = recorder.Email,
-                    UserName = recorder.UserName,
-                    PhoneNumber = recorder.PhoneNumber,
-                    DateCreated = recorder.DateCreated
-                };
+                return insertedUser;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error during user creation.");
+                throw new RepositoryException("Error creating user from the database.", ex);
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error creating user from the database.");
-            } 
+                _logger.LogError(ex, "Unexpected error during user creation.");
+                throw new RepositoryException("Unexpected error occurred while creating user.", ex);
+            }
         }
-
+         
         public async Task<User?> UpdateUserAsync(User user)
         {
             const string query = @"
@@ -61,25 +63,28 @@
                 SELECT Id, UserName, PhoneNumber, Email, DateCreated 
                 FROM Users 
                 WHERE Id = @Id;";
-            var parameters = new
-            {  
-                user.PhoneNumber,
-                user.Email,
-                user.Id
-            };
+
+            var parameters = new { user.PhoneNumber, user.Email, user.Id };
+
             try
-            { 
+            {
                 return await _dbConnection.QueryFirstOrDefaultAsync<User>(query, parameters);
             }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error during user update.");
+                throw new RepositoryException("Error occurred while updating user.", ex);
+            }
             catch (Exception ex)
-            { 
-                throw new RepositoryException("Error occurred while updating user.");
-            } 
+            {
+                _logger.LogError(ex, "Unexpected error during user update.");
+                throw new RepositoryException("Unexpected error occurred while updating user.", ex);
+            }
         }
-
+         
         public async Task<IEnumerable<User>> GetUsersAsync()
         {
-            var sql = @"
+            const string sql = @"
                 SELECT u.Id, u.UserName, u.Email, u.PhoneNumber, u.DateCreated, r.Name AS RoleName
                 FROM Users u
                 LEFT JOIN UserRoles ur ON u.Id = ur.UserId
@@ -89,116 +94,170 @@
             {
                 var userDictionary = new Dictionary<int, User>();
 
-                var result = await _dbConnection.QueryAsync<User, string, User>(
+                await _dbConnection.QueryAsync<User, string, User>(
                     sql,
                     (user, roleName) =>
                     {
-                        if (!userDictionary.TryGetValue(user.Id, out var currentUser))
+                        if (!userDictionary.TryGetValue(user.Id, out var existingUser))
                         {
-                            currentUser = user;
-                            currentUser.Roles = new List<string>();
-                            userDictionary.Add(currentUser.Id, currentUser);
+                            existingUser = user;
+                            existingUser.Roles = new List<string>();
+                            userDictionary.Add(existingUser.Id, existingUser);
                         }
 
                         if (!string.IsNullOrEmpty(roleName))
-                            currentUser.Roles.Add(roleName);
+                            existingUser.Roles.Add(roleName);
 
-                        return currentUser;
+                        return existingUser;
                     },
                     splitOn: "RoleName"
                 );
 
                 return userDictionary.Values;
             }
-            catch (Exception)
+            catch (SqlException ex)
             {
-                throw new RepositoryException("Error occurred while fetching users with roles.");
-            }
-        }
-
-        public async Task<bool> DeleteUserAsync(int userId)
-        {
-            var query = "DELETE FROM Users WHERE Id = @userId"; 
-            var parameters = new { UserId = userId }; 
-            try
-            {
-                return await _dbConnection.ExecuteAsync(query, parameters) > 0; 
+                _logger.LogError(ex, "SQL error during fetching users with roles.");
+                throw new RepositoryException("Error occurred while fetching users with roles.", ex);
             }
             catch (Exception ex)
-            { 
-                throw new RepositoryException("An error occurred while deleting the user.");
+            {
+                _logger.LogError(ex, "Unexpected error during fetching users with roles.");
+                throw new RepositoryException("Unexpected error occurred while fetching users.", ex);
             }
-        }  
+        }
+         
+        public async Task<bool> DeleteUserAsync(int userId)
+        {
+            const string query = "DELETE FROM Users WHERE Id = @UserId";
+            var parameters = new { UserId = userId };
 
+            try
+            {
+                var affectedRows = await _dbConnection.ExecuteAsync(query, parameters);
+                return affectedRows > 0;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error during user deletion.");
+                throw new RepositoryException("An error occurred while deleting the user.", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during user deletion.");
+                throw new RepositoryException("Unexpected error occurred while deleting the user.", ex);
+            }
+        }
+         
         public async Task<User?> GetUserByEmailAsync(string email)
         {
             const string query = "SELECT * FROM Users WHERE Email = @Email";
             var parameters = new { Email = email };
+
             try
-            { 
-                return await _dbConnection.QueryFirstOrDefaultAsync<User>(query, parameters); 
+            {
+                return await _dbConnection.QueryFirstOrDefaultAsync<User>(query, parameters);
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error during fetching user by email.");
+                throw new RepositoryException("Error fetching user by email.", ex);
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error fetching user data from the database."); 
+                _logger.LogError(ex, "Unexpected error during fetching user by email.");
+                throw new RepositoryException("Unexpected error occurred while fetching user by email.", ex);
             }
-        }  
-          
-        public async Task<User?> GetUserByIdAsync(int userId)   
-        { 
-            var query = "SELECT * FROM Users WHERE Id = @UserId";
+        }
+         
+        public async Task<User?> GetUserByIdAsync(int userId)
+        {
+            const string query = "SELECT * FROM Users WHERE Id = @UserId";
             var parameters = new { UserId = userId };
+
             try
-            { 
-                 return  await _dbConnection.QuerySingleOrDefaultAsync<User>(query, parameters); 
+            {
+                return await _dbConnection.QuerySingleOrDefaultAsync<User>(query, parameters);
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error during fetching user by ID.");
+                throw new RepositoryException("Error fetching user by ID.", ex);
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("Error fetching user data from the database."); 
-            } 
+                _logger.LogError(ex, "Unexpected error during fetching user by ID.");
+                throw new RepositoryException("Unexpected error occurred while fetching user by ID.", ex);
+            }
         }
          
         public async Task<bool> CheckPasswordAsync(int userId, string passwordHash)
-        {  
-            var query = "SELECT PasswordHash FROM Users WHERE Id = @Id";
-            var parameters = new { Id = userId};
+        {
+            const string query = "SELECT PasswordHash FROM Users WHERE Id = @Id";
+            var parameters = new { Id = userId };
+
             try
             {
-                var storedPasswordHash = await _dbConnection.QuerySingleOrDefaultAsync<string>(query, new { Id = userId });
-                return storedPasswordHash == passwordHash;
+                var storedHash = await _dbConnection.QuerySingleOrDefaultAsync<string>(query, parameters);
+                return storedHash == passwordHash;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error during password check.");
+                throw new RepositoryException("An error occurred while checking the password.", ex);
             }
             catch (Exception ex)
             {
-                throw new RepositoryException("An error occurred while adding the claim.");
-            }
-        }    
-         
-        public async Task<string> GetRoleForUserAsync(int userId)
-        {  
-            const string query = "SELECT Role FROM Users WHERE Id = @UserId";
-            var parameters = new { UserId = userId };
-            try
-            {
-                return await _dbConnection.QueryFirstOrDefaultAsync<string>(query, new { UserId = userId }) ?? "";
-            }
-            catch (Exception ex)
-            {
-                throw new RepositoryException("Error occurred while removing user from role.");
-            }
-        } 
-           
-        public async Task<bool> ResetPasswordAsync(int userId, string newPassword)
-        { 
-            try
-            {  
-                var updateQuery = "UPDATE Users SET PasswordHash = @NewPassword WHERE Id = @UserId"; 
-                var parameters = new { UserId = userId, NewPassword = newPassword }; 
-                return await _dbConnection.ExecuteAsync(updateQuery, parameters) > 0; 
-            }
-            catch (Exception ex)
-            { 
-                throw new RepositoryException("Error occurred while resetting the password");
+                _logger.LogError(ex, "Unexpected error during password check.");
+                throw new RepositoryException("Unexpected error occurred while checking the password.", ex);
             }
         }
-    }
+         
+        public async Task<string> GetRoleForUserAsync(int userId)
+        {
+            const string query = @"
+                SELECT r.Name
+                FROM Roles r
+                INNER JOIN UserRoles ur ON r.Id = ur.RoleId
+                WHERE ur.UserId = @UserId";
+
+            var parameters = new { UserId = userId };
+
+            try
+            {
+                return await _dbConnection.QueryFirstOrDefaultAsync<string>(query, parameters) ?? string.Empty;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error during fetching user role.");
+                throw new RepositoryException("Error occurred while retrieving user role.", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during fetching user role.");
+                throw new RepositoryException("Unexpected error occurred while retrieving user role.", ex);
+            }
+        }
+         
+        public async Task<bool> ResetPasswordAsync(int userId, string newPassword)
+        {
+            const string updateQuery = "UPDATE Users SET PasswordHash = @NewPassword WHERE Id = @UserId";
+            var parameters = new { UserId = userId, NewPassword = newPassword };
+
+            try
+            {
+                return await _dbConnection.ExecuteAsync(updateQuery, parameters) > 0;
+            }
+            catch (SqlException ex)
+            {
+                _logger.LogError(ex, "SQL error during password reset.");
+                throw new RepositoryException("Error occurred while resetting the password.", ex);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error during password reset.");
+                throw new RepositoryException("Unexpected error occurred while resetting the password.", ex);
+            }
+        }
+    } 
 }

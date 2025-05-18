@@ -52,7 +52,7 @@ A secure and extensible **ASP.NET Core 9 API Identity Server** and **People Mana
 - Uses a custom `UserHttpClient` to communicate with Identity Server
 
  
- 
+![App Screenshot](images/0.JPG)
 ![App Screenshot](images/1.jpg)
 
 ![App Screenshot](images/2.jpg)
@@ -79,12 +79,14 @@ A secure and extensible **ASP.NET Core 9 API Identity Server** and **People Mana
 Run the following SQL script **before** starting the backend:
 
 ```sql
- IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'IdentityServerDB')
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = N'IdentityServerDB')
 BEGIN
     CREATE DATABASE IdentityServerDB;
 END
+GO
 
 USE IdentityServerDB;
+GO
 
 BEGIN TRY
     BEGIN TRANSACTION;
@@ -131,21 +133,7 @@ BEGIN TRY
         '+1234567890'
     );
 
-    INSERT INTO Roles (Name, Description)
-    VALUES 
-      ('EMPLOYEE', 'Regular employee with limited access'),
-      ('MANAGER', 'Manager with extended permissions'),
-      ('HR ADMIN', 'Human Resources administrator with full access');
-
-    COMMIT TRANSACTION;
-END TRY
-BEGIN CATCH
-    ROLLBACK TRANSACTION;
-
-    DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-    RAISERROR(@ErrorMessage, 16, 1);
-END CATCH;
-
+    COMMIT TRAN
 
 
 ENDPOINTS:

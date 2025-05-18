@@ -24,6 +24,5 @@
                     u.Roles ?? new List<string>()   
                 )));
         }
-    }
-
+    } 
 }

@@ -1,31 +1,62 @@
-﻿namespace IdentityServer.Tests.IntegrationTests.Fakes
-{
-    using global::IdentityServer.Application.Interfaces;
-    using global::IdentityServer.Application.Results;
-    using global::IdentityServer.Domain.Models; 
-    using System.Collections.Concurrent;
+﻿using IdentityServer.Application.Interfaces;
+using IdentityServer.Application.Results;
+using IdentityServer.Domain.Models;
+using System.Collections.Concurrent; 
 
+namespace IdentityServer.Tests.IntegrationTests.Fakes
+{
     public class FakeUserManager : IUserManager
     {
         private readonly ConcurrentDictionary<int, User> _users = new();
         private int _idCounter = 1;
-        private readonly object _lock = new();  
+         
+        // Method to add a fake user easily for testing
+        public void AddFakeUser(string email, string password, string username)
+        {
+            // If the email already exists, throw an exception (you could return a failure result instead)
+            bool emailExists = _users.Values.Any(u =>
+                string.Equals(u.Email, email, StringComparison.OrdinalIgnoreCase));
+
+            if (emailExists)
+                throw new InvalidOperationException("Email already in use");
+
+            var user = new User
+            {
+                Id = _idCounter++,
+                Email = email,
+                Password = password, // In real applications, passwords should be hashed
+                UserName = username,
+                DateCreated = DateTime.UtcNow
+            };
+
+            _users[user.Id] = user;
+        }
 
         public Task<IdentityResult<User>> CreateAsync(User user)
         {
-            lock (_lock)
-            {
-                bool emailExists = _users.Values.Any(u =>
-                    string.Equals(u.Email, user.Email, StringComparison.OrdinalIgnoreCase));
+            bool emailExists = _users.Values.Any(u =>
+                string.Equals(u.Email, user.Email, StringComparison.OrdinalIgnoreCase));
 
-                if (emailExists) 
-                    return Task.FromResult(IdentityResult<User>.Failure("Email already in use")); 
+            if (emailExists)
+                return Task.FromResult(IdentityResult<User>.Failure("Email already in use"));
 
-                user.Id = _idCounter++;
-                user.DateCreated = DateTime.UtcNow;
-                _users[user.Id] = user; 
-                return Task.FromResult(IdentityResult<User>.Success(user));
-            }
+            user.Id = _idCounter++;
+            user.DateCreated = DateTime.UtcNow;
+            _users[user.Id] = user;
+            return Task.FromResult(IdentityResult<User>.Success(user));
+        }
+
+        public Task<IdentityResult<User>> CreateWithIDAsync(User user)
+        {
+            bool emailExists = _users.Values.Any(u =>
+                string.Equals(u.Email, user.Email, StringComparison.OrdinalIgnoreCase));
+
+            if (emailExists)
+                return Task.FromResult(IdentityResult<User>.Failure("Email already in use"));
+             
+            user.DateCreated = DateTime.UtcNow;
+            _users[user.Id] = user;
+            return Task.FromResult(IdentityResult<User>.Success(user));
         }
 
         public Task<IdentityResult<bool>> DeleteAsync(int userId)
@@ -79,18 +110,18 @@
             return Task.FromResult(IdentityResult<User>.Failure("Invalid credentials"));
         }
 
-        public Task<IdentityResult<bool>> FindByEmailAsync(string email)
+        public Task<IdentityResult<User>> FindByEmailAsync(string email)
         {
-            if (string.IsNullOrWhiteSpace(email)) 
-                return Task.FromResult(IdentityResult<bool>.Failure("Email is null or empty")); 
-             
-            var exists = _users.Values.Any(u =>
+            if (string.IsNullOrWhiteSpace(email))
+                return Task.FromResult(IdentityResult<User>.Failure("Email is null or empty"));
+
+            var user = _users.Values.FirstOrDefault(u =>
                 string.Equals(u.Email, email, StringComparison.OrdinalIgnoreCase));
-             
-            return Task.FromResult(IdentityResult<bool>.Success(exists));
+
+            if (user == null)
+                return Task.FromResult(IdentityResult<User>.Failure("User not found"));
+
+            return Task.FromResult(IdentityResult<User>.Success(user));
         }
-
     }
-
-
 }

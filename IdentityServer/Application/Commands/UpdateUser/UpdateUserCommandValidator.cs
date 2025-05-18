@@ -10,6 +10,8 @@
                 .GreaterThan(0).WithMessage("ID must be a positive number.");
 
             RuleFor(x => x.Email)
+                .MinimumLength(5).WithMessage("Email must be at least 5 characters long.")
+                .MaximumLength(100).WithMessage("Email must not exceed 100 characters.")
                 .EmailAddress().WithMessage("A valid email address is required.")
                 .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("Email format is invalid.")   
                 .When(x => !string.IsNullOrEmpty(x.Email));  

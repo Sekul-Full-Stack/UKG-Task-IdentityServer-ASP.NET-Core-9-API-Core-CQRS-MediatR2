@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{C9F3CA3F-FC6F-4A00-8965-271264E2A0E4}|PeopleManagementAPI.Tests.Unit\\PeopleManagementAPI.Tests.Unit.csproj|c:\\users\\smkwo\\desktop\\github\\ukg-task-identityserver-asp.net-core-9-api-core-cqrs-mediatr2\\peoplemanagementapi.tests.unit\\controllers\\peoplecontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C9F3CA3F-FC6F-4A00-8965-271264E2A0E4}|PeopleManagementAPI.Tests.Unit\\PeopleManagementAPI.Tests.Unit.csproj|solutionrelative:peoplemanagementapi.tests.unit\\controllers\\peoplecontrollertests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 212,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "PeopleControllerTests.cs",
+              "DocumentMoniker": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\\PeopleManagementAPI.Tests.Unit\\Controllers\\PeopleControllerTests.cs",
+              "RelativeDocumentMoniker": "PeopleManagementAPI.Tests.Unit\\Controllers\\PeopleControllerTests.cs",
+              "ToolTip": "C:\\Users\\smkwo\\Desktop\\GitHub\\UKG-Task-IdentityServer-ASP.NET-Core-9-API-Core-CQRS-MediatR2\\PeopleManagementAPI.Tests.Unit\\Controllers\\PeopleControllerTests.cs",
+              "RelativeToolTip": "PeopleManagementAPI.Tests.Unit\\Controllers\\PeopleControllerTests.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAbAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-05-18T12:36:05.085Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
